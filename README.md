@@ -13,6 +13,94 @@ In this project we will implement a 2 dimensional particle filter in C++. Our pa
 
 ## Write Up
 
+Particle Filter Flowchart
+
+![Flowchart](./writeup/Flowchart.jpg)
+
+### Initialization
+
+The way to initialize our particles is to make an initial estimate using GPS inputs.The particles shall be created by samping a Gaussian distribution and taking into account Gaussian sensor noise around the initial GPS position.
+
+### Prediction
+
+Bicycle Model
+
+![Model](./writeup/BicycleModel.jpg)
+
+If $\dot{\theta} = 0 $,then
+
+$ x_f = x_0 + v(dt)(cos(\theta_0)) $
+
+$ y_f = y_0 + v(dt)(sin(\theta_0)) $
+
+$ \theta_f = \theta_0 $
+
+
+If $\dot{\theta} \neq 0 $, then
+
+$ x_f = x_0 + \frac{v}{\dot{\theta}}[sin(\theta_0 + \dot{\theta}(dt)) - sin(\theta_0)] $
+
+$ y_f = y_0 + \frac{v}{\dot{\theta}}[cos(\theta_0) - cos(\theta_0 + \dot{\theta}(dt))] $
+
+$ \theta_f = \theta_0 + \dot{\theta}(dt) $
+
+**$x_f,y_f$**: Final x,y position
+
+**$\theta_f$**: Fianl yaw
+
+**$x_0,y_0,\theta_0$**: The initial value of x,y and $\theta$
+
+**dt** : Time elapsed
+
+**v**: Velocity
+
+**$\dot{\theta}$**: Yaw rate
+
+### Update Weights
+
+Map with Car Observations and Particle
+
+![Landmarks](./writeup/Landmarks.jpg)
+
+Homogenous Transformation
+
+$$ \begin{bmatrix} x_m \\ y_m \\ 1 \end{bmatrix}  = \begin{bmatrix} cos{\theta}& -sin{\theta} & x_p \\ sin{\theta} & cos{\theta} & y_p \\ 0 & 0 & 1 \end{bmatrix}  \times \begin{bmatrix} x_c \\ y_c \\ 1 \end{bmatrix} $$
+
+Association Solution
+
+In order to associate particles,we will use the Euclidan distance to find the nearest landmark to each transformed observation.
+
+$$ distance = \sqrt{(x_{obs} - x_{landmark})^2 + (y_{obs} - y_{landmark})^2} $$
+
+Particle Weight
+
+The Multivariate-Gaussian probability density has two dimensions, x and y. The mean of the Multivariate-Gaussian is the measurement's associated landmark position and the Multivariate-Gaussian's standard deviation is described by our initial uncertainty in the x and y ranges. The Multivariate-Gaussian is evaluated at the point of the transformed measurement's position.
+
+$$ P(x,y) = \frac{1}{2\pi\sigma_x\sigma_y} e^{-(\frac{(x-\mu_x)^2}{2\sigma_x^2} + \frac{(y-\mu_y)^2}{2\sigma_y^2})} $$
+
+* $\sigma_x,\sigma_y$ : landmark measurement uncertainty
+* x,y : the observations in map coordinates
+* $\mu_x,\mu_y$: the coordinates of the nearest landmarks
+
+
+### Resample
+
+The way to resample the particles is to use [discrete distribution](https://en.cppreference.com/w/cpp/numeric/random/discrete_distribution)
+
+```C++
+
+    double index_sample;
+    default_random_engine gen;
+    std::discrete_distribution<> d{std::begin(weights),std::end(weights)};
+    for (int i=0;i< num_particles;i++){
+
+        index_sample = d(gen);
+        particles_resample.push_back(particles[index_sample]);
+    }
+
+    // update the particles
+    particles = particles_resample;
+```
 
 
 ## Running the Code
