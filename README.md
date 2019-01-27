@@ -11,6 +11,8 @@ Our robot has been kidnapped and transported to a new location! Luckily it has a
 
 In this project we will implement a 2 dimensional particle filter in C++. Our particle filter will be given a map and some initial localization information (analogous to what a GPS would provide). At each time step our filter will also get observation and control data.
 
+Note : If the math formula shows an exception, you can view the pdf version of [Readme](./Readme.pdf)
+
 ## Write Up
 
 Particle Filter Flowchart
@@ -60,7 +62,7 @@ $ \theta_f = \theta_0 + \dot{\theta}(dt) $
 
 Map with Car Observations and Particle
 
-![Landmarks](./writeup/Landmarks.jpg)
+![Landmarks](./writeup/Landmarks.JPG)
 
 Homogenous Transformation
 
